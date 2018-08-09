@@ -204,6 +204,19 @@ def createxml(filename: str, states: [State], start_action: str):
     xml_uml = etree.Element('umldiagram')
     xml_description = etree.SubElement(xml_uml, 'description')
     xml_description.text = ' '
+    xml_eventfields = etree.SubElement(xml_uml, 'eventfields')
+    xml_eventfields.text = '/*add event fields here as field tag with parameters name and type*/'
+    xml_statefields = etree.SubElement(xml_uml, 'statefields')
+    xml_statefields.text = '/*add state fields here as field tag with parameters name and type*/'
+    xml_constructor = etree.SubElement(xml_uml, 'contructor')
+    xml_ctorfields = etree.SubElement(xml_constructor, 'ctorfields')
+    xml_ctorfields.text = '/*add extra oonstructor fields here as field tag with parameters name and type*/'
+    xml_ctorcode = etree.SubElement(xml_constructor, 'ctorcode')
+    xml_ctorcode.text = etree.CDATA('\n/*extra constructor code*/\n')
+    xml_hcode = etree.SubElement(xml_uml, 'hcode')
+    xml_hcode.text = etree.CDATA('\n/*add any code to add to .h file*/\n')
+    xml_cppcode = etree.SubElement(xml_uml, 'cppcode')
+    xml_cppcode.text = etree.CDATA('\n/*add any code to add to .cpp file*/\n')
     xml_initial = etree.SubElement(xml_uml, 'initial')
     xml_initial.text = etree.CDATA('\n/*'+start_action+'/*\n')
     add_states_to_xml(xml_uml, states)
