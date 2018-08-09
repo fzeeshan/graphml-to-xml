@@ -140,11 +140,11 @@ def create_states_from_nodes(nodes: [dict]) -> [State]:
     states = []
     for node in nodes:
         if is_node_a_group(node):
-            state, player_signal = create_state_from_node(node, "group")
+            state = create_state_from_node(node, "group")
             states.append(state)
     for node in nodes:
         if is_node_a_state(node):
-            state, player_signal = create_state_from_node(node, "state")
+            state = create_state_from_node(node, "state")
             states.append(state)
     for node in nodes:
         if is_node_a_choice(node):
@@ -202,12 +202,13 @@ def createxml(filename: str, states: [State], start_action: str):
     :return:
     """
     xml_uml = etree.Element('umldiagram')
-    _ = etree.SubElement(xml_uml, 'description')
+    xml_description = etree.SubElement(xml_uml, 'description')
+    xml_description.text = ' '
     xml_initial = etree.SubElement(xml_uml, 'initial')
-    xml_initial.text = start_action
+    xml_initial.text = etree.CDATA('\n/*'+start_action+'/*\n')
     add_states_to_xml(xml_uml, states)
     xml_tree = etree.ElementTree(xml_uml)
-    xml_tree.write('%s.qm' % filename, xml_declaration=True, encoding="UTF-8")
+    xml_tree.write('%s.xml' % filename, xml_declaration=True, encoding="UTF-8", method="xml", pretty_print=True,)
 
 
 def add_states_to_xml(xml_parent: etree._Element, states: [State]):
@@ -232,10 +233,10 @@ def get_simple_state_code(parent: etree._Element, state: State, states: [State])
     xml_state = etree.SubElement(parent, 'state', name=state.name)
     if state.entry:
         xml_entry = etree.SubElement(xml_state, 'entry')
-        xml_entry.text = "<![CDATA[\n /*" + state.entry + '*/ \n ]]>'
+        xml_entry.text = etree.CDATA('\n/*'+state.entry + '*/\n')
     if state.exit:
         qm_exit = etree.SubElement(xml_state, 'exit')
-        qm_exit.text = "<![CDATA[\n /*" + state.exit + '*/ \n ]]>'
+        qm_exit.text = etree.CDATA('\n/*' + state.exit + '*/\n')
     for signal in state.signals:
         get_signal_code(xml_state, signal)
 
@@ -247,8 +248,9 @@ def get_signal_code(xml_state: etree._Element, signal: Signal):
     :param signal: signal to add
     :return:
     """
+    xml_signal = etree.SubElement(xml_state, "signal", name=signal.name)
     if signal.guard:
-        xml_signal = etree.SubElement(xml_state, "signal", name=signal.name, guard=signal.guard)
-    else:
-        xml_signal = etree.SubElement(xml_state, "signal", name=signal.name)
-    xml_signal.text = "<![CDATA[\n /*" + signal.action + '*/ \n ]]>'
+        xml_guard = etree.SubElement(xml_signal, 'guard')
+        xml_guard.text = etree.CDATA(signal.guard)
+    xml_code = etree.SubElement(xml_signal, 'code')
+    xml_code.text = etree.CDATA("\n/*" + signal.action + '*/\n')

@@ -165,12 +165,18 @@ def get_state_label(data: dict) -> str:
     :param data: dict with data
     :return: string with label
     """
-    data = data.get('y:GenericNode')
+    node_id = data['id']
+    try:
+        data = data['y:GenericNode']['y:NodeLabel']
+    except KeyError:
+        logging.warning("Cannot retrieve state name %s" % data['id'])
+    if not isinstance(data, list):
+        data = [data]
     for label in data:
         if "#text" in label.keys() and '@configuration' in label.keys():
             if label['@configuration'] == 'com.yworks.entityRelationship.label.name':
                 return label['#text']
-    logging.warning("Cannot retrieve state name %s" % data['id'])
+    logging.warning("Cannot retrieve state name %s" % node_id)
     return ""
 
 
